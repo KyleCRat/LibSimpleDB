@@ -1,19 +1,21 @@
-# LibSimpleDB-1.0 Changelog
+# Changelog
 
-This changelog tracks changes by LibStub minor version.
+## 2.0.0 - Unreleased
 
-## Minor 2
+- Rewrote the library as the separate `LibSimpleDB-2.0` API family.
+- Added allocation-free effective, raw, default, and color read paths.
+- Added stable metatable-backed instances that update through a persistent
+  LibStub-owned prototype across later `2.0` minors.
+- Added explicit reset normalization and empty-parent pruning.
+- Added copied table writes and `GetCopy()` for callback-safe table editing.
+- Replaced dotted callback paths with typed exact and tree callbacks.
+- Defined effective-value, unchanged-write, dispatch snapshot, and callback
+  error-isolation behavior.
+- Replaced frame-like lifecycle event names with explicit lifecycle callbacks.
+- Added strict path, nil write, color, and SavedVariables value validation.
+- Added a dependency-free Lua 5.1 test harness and reproducible benchmarks.
 
-- Replaced non-table intermediate values with tables when writing nested paths.
-  This prevents writes like `db:Set("power", "border", "texture", value)` from
-  failing if `power.border` already contains a scalar value.
-- Applied the same nested-path overwrite behavior to `SetDefault()`, `Toggle()`,
-  and `SetColor()` through the shared path-creation helper.
-- Updated `SetColor()` to replace wrong-shaped existing data with a valid color
-  table instead of mutating arbitrary tables in place.
+## 1.0.0 - 2026-07-11
 
-## Minor 1
-
-- Initial embedded library version.
-- Added defaults fallback, nested get/set helpers, reset support, callbacks,
-  lifecycle events, color helpers, and default registration.
+- Preserved the legacy `LibSimpleDB-1.0`, minor 2 implementation as the
+  standalone repository baseline.
