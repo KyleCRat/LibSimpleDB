@@ -264,6 +264,7 @@ end)
 test("color helpers validate, copy, and fall back consistently", function()
     local db = freshLibrary():New({ malformed = { r = 1 } }, {
         accent = { r = 0.1, g = 0.2, b = 0.3, a = 0.4 },
+        malformedDefault = { r = 1 },
     })
     local r, g, b, a = db:GetColor("accent")
     assertEqual(r, 0.1)
@@ -278,6 +279,12 @@ test("color helpers validate, copy, and fall back consistently", function()
     assertEqual(a, 0.4)
 
     r, g, b, a = db:GetColor("malformed")
+    assertEqual(r, 1)
+    assertEqual(g, 1)
+    assertEqual(b, 1)
+    assertEqual(a, 1)
+
+    r, g, b, a = db:GetColorDefault("malformedDefault")
     assertEqual(r, 1)
     assertEqual(g, 1)
     assertEqual(b, 1)
@@ -394,6 +401,21 @@ test("duplicate registration is idempotent and unregister-all is supported", fun
     assertEqual(calls, 1)
 end)
 
+test("one callback runs once per matching subscription", function()
+    local db = freshLibrary():New({})
+    local calls = 0
+    local callback = function() calls = calls + 1 end
+    db:RegisterTreeCallback(callback)
+    db:RegisterTreeCallback(callback, "panel")
+    db:RegisterCallback(callback, "panel", "scale")
+    db:Set("panel", "scale", 1)
+    assertEqual(calls, 3)
+
+    db:UnregisterAllCallbacks(callback)
+    db:Set("panel", "scale", 2)
+    assertEqual(calls, 3)
+end)
+
 test("exact and tree callbacks unregister independently", function()
     local db = freshLibrary():New({})
     local exactCalls, treeCalls = 0, 0
@@ -461,6 +483,40 @@ test("lifecycle errors and removals use snapshot dispatch", function()
     assertEqual(removedCalls, 1)
     assertEqual(laterCalls, 1)
     assertEqual(#callbackErrors, 1)
+end)
+
+test("lifecycle additions apply after the current snapshot", function()
+    local db = freshLibrary():New({})
+    local addedCalls = 0
+    local added = function() addedCalls = addedCalls + 1 end
+    db:RegisterLifecycleCallback("OnReset", function(instance)
+        instance:RegisterLifecycleCallback("OnReset", added)
+    end)
+
+    db:Reset()
+    assertEqual(addedCalls, 0)
+    db:Reset()
+    assertEqual(addedCalls, 1)
+end)
+
+test("lifecycle callbacks receive documented data arguments", function()
+    local original = {}
+    local replacement = {}
+    local db = freshLibrary():New(original)
+    local seenNew, seenOld, seenDefaults
+    db:RegisterLifecycleCallback("OnDataChanged", function(_, _, newData, oldData)
+        seenNew = newData
+        seenOld = oldData
+    end)
+    db:RegisterLifecycleCallback("OnDefaultsChanged", function(_, _, defaults)
+        seenDefaults = defaults
+    end)
+
+    db:SetData(replacement)
+    local registeredDefaults = db:RegisterDefaults({ enabled = true })
+    assertEqual(seenNew, replacement)
+    assertEqual(seenOld, original)
+    assertEqual(seenDefaults, registeredDefaults)
 end)
 
 test("lifecycle callbacks support targeted and complete cleanup", function()
@@ -566,6 +622,11 @@ test("rejects unsupported and cyclic assigned tables", function()
     cycle.self = cycle
     assertError(function() db:Set("cycle", cycle) end, "cyclic tables")
     assertNil(db:GetRaw("cycle"))
+
+    assertError(function()
+        db:Set("badKey", { [true] = "invalid" })
+    end, "table keys")
+    assertNil(db:GetRaw("badKey"))
 end)
 
 test("rejects NaN path keys", function()

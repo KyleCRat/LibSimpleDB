@@ -88,6 +88,19 @@ The tests have no external Lua dependencies. GitHub or other CI automation
 should use a reviewed Lua 5.1 installation source rather than downloading an
 unreviewed runtime during the test job.
 
+Benchmarks default to three runs and report per-operation medians. Compare the
+working tree with the actual `1.0.0` tag through the same benchmark suite:
+
+```powershell
+lua benchmarks/run.lua
+lua benchmarks/compare.lua
+lua tests/tagged-compat.lua
+```
+
+The optional positional arguments are primary iterations, run count, and GC
+mode, for example `lua benchmarks/compare.lua 500000 5 stopped`. See
+[Performance.md](Performance.md) for the reviewed baseline and interpretation.
+
 ## Versioning
 
 - Git tags use unprefixed SemVer: `2.0.0`, `2.0.1`, `2.1.0`.
