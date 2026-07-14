@@ -152,6 +152,15 @@ test("applies defaults per requested path without merging returned tables", func
     assertEqual(db:Get("panel", "width"), 200)
 end)
 
+test("deep reads fall back after scalar raw intermediates", function()
+    local db = freshLibrary():New({ panel = "legacy" }, {
+        panel = { scale = 1 },
+    })
+    assertEqual(db:Get("panel", "scale"), 1)
+    assertNil(db:GetRaw("panel", "scale"))
+    assertEqual(db:GetDefault("panel", "scale"), 1)
+end)
+
 test("replaces scalar intermediate raw values during nested writes", function()
     local data = { display = "legacy" }
     local db = freshLibrary():New(data)
@@ -171,6 +180,12 @@ test("rejects missing paths, nil keys, and nil Set values without mutation", fun
     local data = {}
     local db = freshLibrary():New(data)
     assertError(function() db:Get() end, "at least one path key")
+    assertError(function() db:Get("missing", nil, "value") end, "path key 2")
+    assertError(function() db:GetRaw("missing", nil, "value") end, "path key 2")
+    assertError(function() db:GetDefault("missing", nil, "value") end, "path key 2")
+    assertError(function() db:GetCopy("missing", nil, "value") end, "path key 2")
+    assertError(function() db:GetColor("missing", nil, "value") end, "path key 2")
+    assertError(function() db:GetColorDefault("missing", nil, "value") end, "path key 2")
     assertError(function() db:Set("a", nil, "value") end, "path key 2")
     assertError(function() db:Set("a", "b", nil) end, "must not be nil")
     assertNil(next(data))

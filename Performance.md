@@ -51,21 +51,38 @@ and construction used 100.
 
 | Operation | 1.0 CPU | 2.0 CPU | CPU change | Allocation KiB, 1.0 to 2.0 |
 |---|---:|---:|---:|---:|
-| Get one raw key | 0.055 s | 0.044 s | -20.0% | 19,531.250 to 0 |
-| Get four raw keys | 0.107 s | 0.187 s | +74.8% | 31,250.000 to 0 |
-| Get default fallback | 0.074 s | 0.045 s | -39.2% | 19,531.250 to 0 |
-| GetRaw four keys | 0.105 s | 0.183 s | +74.3% | 31,250.000 to 0 |
-| GetDefault four keys | 0.102 s | 0.182 s | +78.4% | 31,250.000 to 0 |
-| GetColor default | 0.109 s | 0.184 s | +68.8% | 19,531.250 to 0 |
-| GetColorDefault | 0.078 s | 0.155 s | +98.7% | 19,531.250 to 0 |
-| Set, no callbacks | 0.119 s | 0.245 s | +105.9% | 42,968.750 to 0 |
-| Set, exact callback | 0.143 s | 0.358 s | +150.3% | 42,968.750 to 39,062.500 |
-| Set, wildcard/root tree callback | 0.156 s | 0.382 s | +144.9% | 42,968.750 to 39,062.500 |
-| IsModified large parent | 0.235 s | 0.230 s | -2.1% | 78.125 to 0 |
-| Construct large defaults | 0.017 s | 0.031 s | +82.4% | 6,700.781 to 6,628.906 |
+| Get one raw key | 0.054 s | 0.040 s | -25.9% | 19,531.250 to 0 |
+| Get four raw keys | 0.106 s | 0.162 s | +52.8% | 31,250.000 to 0 |
+| Get default fallback | 0.081 s | 0.049 s | -39.5% | 19,531.250 to 0 |
+| GetRaw four keys | 0.107 s | 0.162 s | +51.4% | 31,250.000 to 0 |
+| GetDefault four keys | 0.105 s | 0.156 s | +48.6% | 31,250.000 to 0 |
+| GetColor default | 0.114 s | 0.133 s | +16.7% | 19,531.250 to 0 |
+| GetColorDefault | 0.078 s | 0.139 s | +78.2% | 19,531.250 to 0 |
+| Set, no callbacks | 0.124 s | 0.248 s | +100.0% | 42,968.750 to 0 |
+| Set, exact callback | 0.146 s | 0.369 s | +152.7% | 42,968.750 to 39,062.500 |
+| Set, wildcard/root tree callback | 0.165 s | 0.368 s | +123.0% | 42,968.750 to 39,062.500 |
+| IsModified large parent | 0.230 s | 0.231 s | +0.4% | 78.125 to 0 |
+| Construct large defaults | 0.018 s | 0.031 s | +72.2% | 6,700.781 to 6,628.906 |
 
 Supplemental runs with garbage collection enabled produced the same CPU trend.
 Collection overhead did not offset the deep-read and write regressions.
+
+## Combined Traversal Optimization
+
+The working tree validates path keys while performing its first read-only
+traversal. Default fallback replays the already-validated path. Mutating methods
+retain complete pre-validation so invalid writes cannot partially modify data.
+
+Compared with the preceding 2.0 implementation, this reduced median CPU time as
+follows while preserving zero allocation:
+
+| Operation | Before | After | Improvement |
+|---|---:|---:|---:|
+| Get four raw keys | 0.187 s | 0.162 s | 13.4% |
+| GetRaw four keys | 0.183 s | 0.162 s | 11.5% |
+| GetDefault four keys | 0.182 s | 0.156 s | 14.3% |
+| GetColor default | 0.184 s | 0.133 s | 27.7% |
+| GetColorDefault | 0.155 s | 0.139 s | 10.3% |
 
 ## Interpretation
 
@@ -79,18 +96,19 @@ The explicit allocation goals pass:
   path and dispatch snapshots, down from about 176 bytes per legacy write.
 - Large-parent `IsModified()` no longer allocates a temporary vararg table.
 
-CPU results are mixed. One-key reads and default fallback improve, but deep
-reads are roughly 70% slower, callback-free writes are about twice as slow, and
-callback writes are more than twice as slow. These operations remain below two
-microseconds per call in this runtime, but the regression is relevant to addons
-that perform many nested reads per event.
+CPU results are mixed. One-key reads and default fallback improve. Deep reads
+remain roughly 49% to 53% slower after the combined traversal optimization,
+callback-free writes are about twice as slow, and callback writes are more than
+twice as slow. These operations remain below two microseconds per call in this
+runtime, but the regression is relevant to addons that perform many nested
+reads per event.
 
 The documented release criterion that benchmarks demonstrate the expected
 improvement is therefore only partially satisfied. Before tagging `2.0.0`, the
 project must either:
 
-1. Optimize the repeated path validation and traversal work, then rerun the
-   comparison; or
+1. Continue optimizing common fixed-depth vararg extraction and strict color
+   validation, then rerun the comparison; or
 2. Explicitly accept and document the CPU-for-allocation tradeoff based on
    focused consumer smoke tests in the WoW client.
 

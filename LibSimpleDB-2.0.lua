@@ -129,6 +129,27 @@ local function traverse(root, count, ...)
     return current
 end
 
+local function traverseValidated(root, operation, count, ...)
+    if count < 1 then
+        error(("Usage: db:%s(key1, ...) requires at least one path key"):format(operation), 3)
+    end
+
+    local current = root
+    for index = 1, count do
+        local key = select(index, ...)
+        if not isPathKey(key) then
+            error(("LibSimpleDB: %s: path key %d must be a string or number"):format(operation, index), 3)
+        end
+
+        if type(current) == "table" then
+            current = current[key]
+        else
+            current = nil
+        end
+    end
+    return current
+end
+
 local function getEffective(db, count, ...)
     local value = traverse(db._data, count, ...)
     if value ~= nil then
@@ -325,9 +346,9 @@ end
 
 function methods:Get(...)
     local count = select("#", ...)
-    validatePath("Get", count, ...)
 
     if count == 1 then
+        validatePath("Get", count, ...)
         local key = ...
         local value = self._data[key]
         if value ~= nil then
@@ -336,33 +357,40 @@ function methods:Get(...)
         return self._defaults[key]
     end
 
-    return getEffective(self, count, ...)
-end
-
-function methods:GetRaw(...)
-    local count = select("#", ...)
-    validatePath("GetRaw", count, ...)
-
-    if count == 1 then
-        return self._data[(...)]
-    end
-    return traverse(self._data, count, ...)
-end
-
-function methods:GetDefault(...)
-    local count = select("#", ...)
-    validatePath("GetDefault", count, ...)
-
-    if count == 1 then
-        return self._defaults[(...)]
+    local value = traverseValidated(self._data, "Get", count, ...)
+    if value ~= nil then
+        return value
     end
     return traverse(self._defaults, count, ...)
 end
 
+function methods:GetRaw(...)
+    local count = select("#", ...)
+
+    if count == 1 then
+        validatePath("GetRaw", count, ...)
+        return self._data[(...)]
+    end
+    return traverseValidated(self._data, "GetRaw", count, ...)
+end
+
+function methods:GetDefault(...)
+    local count = select("#", ...)
+
+    if count == 1 then
+        validatePath("GetDefault", count, ...)
+        return self._defaults[(...)]
+    end
+    return traverseValidated(self._defaults, "GetDefault", count, ...)
+end
+
 function methods:GetCopy(...)
     local count = select("#", ...)
-    validatePath("GetCopy", count, ...)
-    return copyValue(getEffective(self, count, ...))
+    local value = traverseValidated(self._data, "GetCopy", count, ...)
+    if value == nil then
+        value = traverse(self._defaults, count, ...)
+    end
+    return copyValue(value)
 end
 
 function methods:Set(...)
@@ -398,9 +426,7 @@ methods.Delete = methods.ResetPath
 
 function methods:IsModified(...)
     local count = select("#", ...)
-    validatePath("IsModified", count, ...)
-
-    local rawValue = traverse(self._data, count, ...)
+    local rawValue = traverseValidated(self._data, "IsModified", count, ...)
     if rawValue == nil then
         return false
     end
@@ -471,14 +497,30 @@ end
 
 function methods:GetColor(...)
     local count = select("#", ...)
-    validatePath("GetColor", count, ...)
-    return unpackColor(getEffective(self, count, ...))
+    if count == 1 then
+        validatePath("GetColor", count, ...)
+        local key = ...
+        local value = self._data[key]
+        if value == nil then
+            value = self._defaults[key]
+        end
+        return unpackColor(value)
+    end
+
+    local value = traverseValidated(self._data, "GetColor", count, ...)
+    if value == nil then
+        value = traverse(self._defaults, count, ...)
+    end
+    return unpackColor(value)
 end
 
 function methods:GetColorDefault(...)
     local count = select("#", ...)
-    validatePath("GetColorDefault", count, ...)
-    return unpackColor(traverse(self._defaults, count, ...))
+    if count == 1 then
+        validatePath("GetColorDefault", count, ...)
+        return unpackColor(self._defaults[(...)])
+    end
+    return unpackColor(traverseValidated(self._defaults, "GetColorDefault", count, ...))
 end
 
 function methods:SetColor(...)
