@@ -176,7 +176,7 @@ test("default-valued nested writes clear scalar intermediate overrides", functio
     assertEqual(db:Get("display", "scale"), 1)
 end)
 
-test("rejects missing paths, nil keys, and nil Set values without mutation", function()
+test("rejects missing paths and nil path keys without mutation", function()
     local data = {}
     local db = freshLibrary():New(data)
     assertError(function() db:Get() end, "at least one path key")
@@ -187,7 +187,6 @@ test("rejects missing paths, nil keys, and nil Set values without mutation", fun
     assertError(function() db:GetColor("missing", nil, "value") end, "path key 2")
     assertError(function() db:GetColorDefault("missing", nil, "value") end, "path key 2")
     assertError(function() db:Set("a", nil, "value") end, "path key 2")
-    assertError(function() db:Set("a", "b", nil) end, "must not be nil")
     assertNil(next(data))
 end)
 
@@ -222,15 +221,35 @@ test("normalizes values equal to defaults and prunes empty raw parents", functio
     assertNil(data.panel)
 end)
 
-test("ResetPath and Delete remove overrides and fall back to defaults", function()
+test("nil Set, ResetPath, and Delete remove overrides and fall back to defaults", function()
     local data = {}
     local db = freshLibrary():New(data, { nested = { value = 10 } })
     db:Set("nested", "value", 20)
-    assertEqual(db:ResetPath("nested", "value"), 10)
+    assertEqual(db:Set("nested", "value", nil), 10)
     assertNil(data.nested)
     db:Set("nested", "value", 30)
+    assertEqual(db:ResetPath("nested", "value"), 10)
+    assertNil(data.nested)
+    db:Set("nested", "value", 40)
     assertEqual(db:Delete("nested", "value"), 10)
     assertNil(data.nested)
+end)
+
+test("nil Set reports effective callback values and ignores missing overrides", function()
+    local db = freshLibrary():New({}, { value = 10 })
+    local calls = {}
+    db:RegisterCallback(function(_, newValue, oldValue)
+        calls[#calls + 1] = { newValue, oldValue }
+    end, "value")
+
+    db:Set("value", 20)
+    assertEqual(db:Set("value", nil), 10)
+    assertEqual(db:Set("value", nil), 10)
+    assertEqual(#calls, 2)
+    assertEqual(calls[1][1], 20)
+    assertEqual(calls[1][2], 10)
+    assertEqual(calls[2][1], 10)
+    assertEqual(calls[2][2], 20)
 end)
 
 test("ResetPath callbacks report effective values and ignore missing overrides", function()

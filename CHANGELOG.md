@@ -12,7 +12,8 @@
 - Defined effective-value, unchanged-write, dispatch snapshot, and callback
   error-isolation behavior.
 - Replaced frame-like lifecycle event names with explicit lifecycle callbacks.
-- Added strict path, nil write, color, and SavedVariables value validation.
+- Added strict path, color, and SavedVariables value validation, with nil final
+  `Set()` values defined as path resets.
 - Added a dependency-free Lua 5.1 test harness and reproducible benchmarks.
 
 ## 1.0.0 - 2026-07-11

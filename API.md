@@ -61,8 +61,9 @@ not intended for hot paths.
 
 ### `db:Set(key1, ..., value)`
 
-Copy and store `value`. Nil values are rejected without modifying data; use
-`Delete()` or `ResetPath()` explicitly. Nested writes replace scalar raw
+Copy and store a non-nil `value`. A nil final value uses `ResetPath()` semantics:
+remove the raw override, prune empty raw ancestors, and fall back to the current
+default. Nil path keys remain invalid. Nested writes replace scalar raw
 intermediates with tables.
 
 When the assigned value equals the current default recursively, remove the raw

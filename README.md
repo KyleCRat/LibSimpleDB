@@ -75,6 +75,9 @@ The rewrite intentionally changes API contracts. Important migrations are:
 `LibSimpleDB-1.0` and `LibSimpleDB-2.0` are separate LibStub families and can
 load together while addons migrate.
 
+See [MIGRATION.md](MIGRATION.md) for the complete source, behavior, callback,
+lifecycle, data-ownership, and verification checklist.
+
 ## Development
 
 With Lua 5.1 installed on `PATH`:

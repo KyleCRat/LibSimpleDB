@@ -340,6 +340,16 @@ local function writeValue(db, value, pathCount, ...)
     return newValue
 end
 
+local function resetValue(db, pathCount, ...)
+    local oldValue = getEffective(db, pathCount, ...)
+    removeRaw(db._data, 1, pathCount, ...)
+    local newValue = getEffective(db, pathCount, ...)
+    if not deepEqual(newValue, oldValue) then
+        dispatchPathCallbacks(db, newValue, oldValue, pathCount, ...)
+    end
+    return newValue
+end
+
 -------------------------------------------------------------------------------
 -- Reads and writes
 -------------------------------------------------------------------------------
@@ -403,7 +413,7 @@ function methods:Set(...)
     validatePath("Set", pathCount, ...)
     local value = select(argumentCount, ...)
     if value == nil then
-        error("LibSimpleDB: Set: value must not be nil; use Delete() or ResetPath()", 2)
+        return resetValue(self, pathCount, ...)
     end
 
     return writeValue(self, value, pathCount, ...)
@@ -412,14 +422,7 @@ end
 function methods:ResetPath(...)
     local count = select("#", ...)
     validatePath("ResetPath", count, ...)
-
-    local oldValue = getEffective(self, count, ...)
-    removeRaw(self._data, 1, count, ...)
-    local newValue = getEffective(self, count, ...)
-    if not deepEqual(newValue, oldValue) then
-        dispatchPathCallbacks(self, newValue, oldValue, count, ...)
-    end
-    return newValue
+    return resetValue(self, count, ...)
 end
 
 methods.Delete = methods.ResetPath
