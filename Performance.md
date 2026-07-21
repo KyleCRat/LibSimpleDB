@@ -103,20 +103,30 @@ twice as slow. These operations remain below two microseconds per call in this
 runtime, but the regression is relevant to addons that perform many nested
 reads per event.
 
-The documented release criterion that benchmarks demonstrate the expected
-improvement is therefore only partially satisfied. Before tagging `2.0.0`, the
-project must either:
+This tradeoff is accepted for the initial `2.0.0` release. Reads are the primary
+hot-path operation: common one-key and default-fallback reads are faster, and
+all measured read paths avoid temporary allocation. A four-key 2.0 read took
+about 0.65 microseconds in this stock Lua runtime, so realistic settings lookup
+volumes are not expected to create noticeable frame time on their own.
 
-1. Continue optimizing common fixed-depth vararg extraction and strict color
-   validation, then rerun the comparison; or
-2. Explicitly accept and document the CPU-for-allocation tradeoff based on
-   focused consumer smoke tests in the WoW client.
+Consumers should still cache stable settings when profiling identifies an event
+storm or per-frame loop, rather than repeatedly traversing the same deep path.
+No additional core optimization is required before release unless the YvBags
+smoke test exposes a practical regression.
 
-## Remaining Verification
+The performance release criterion is satisfied by the allocation improvements,
+the measured absolute CPU cost, and explicit acceptance of the remaining deep
+read and write regressions.
 
-- Smoke-test `LootLevel`, `PhasedCombatTimer`, `RPGBossBar`, and `YvBags` with
-  the release candidate and real embedded LibStub copies.
-- Run `lua tests/tagged-compat.lua` to verify the actual tagged legacy source and
-  working-tree rewrite in both load orders.
+## Release Verification
+
+- Smoke-test YvBags with the `LibSimpleDB-2.0` and
+  `LibSimpleDBProfiles-1.0` release candidates and real embedded LibStub copies
+  while legacy `LibSimpleDB-1.0` consumers are also installed.
+- Repeat the syntax check, test suites, tagged-family compatibility test, and
+  benchmarks locally before pushing the final release commit or tag.
 - Record new benchmark results here whenever a performance-sensitive
   implementation change alters the comparison materially.
+
+PhasedCombatTimer, RPGBossBar, and LootLevel migrations are deferred and do not
+block `2.0.0`.

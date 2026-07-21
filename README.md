@@ -12,10 +12,15 @@ and Lua 5.1.
 
 ## Status
 
-The `2.0.0` rewrite is under review. The implementation, tests, and benchmarks
-are present, but the release must not be tagged until they have run with a
-trusted Lua 5.1 runtime and the results have been reviewed. Consumer addons have
-not been updated.
+The `2.0.0` release candidate is implemented. Syntax checks, the Lua 5.1 test
+suite, tagged-family compatibility tests, and repeatable 1.0-versus-2.0
+benchmarks have run successfully. The measured CPU-for-allocation tradeoff is
+accepted for the initial release.
+
+The release remains pending implementation of `LibSimpleDBProfiles-1.0`, the
+focused YvBags smoke test, and one final local verification run.
+PhasedCombatTimer, RPGBossBar, and LootLevel migrations are deferred and do not
+block `2.0.0`.
 
 ## Load and Create
 
@@ -80,25 +85,24 @@ lifecycle, data-ownership, and verification checklist.
 
 ## Development
 
-With Lua 5.1 installed on `PATH`:
+With stock Lua 5.1 installed on `PATH`, run the complete verification set from
+the repository root:
 
 ```powershell
+luac -p LibSimpleDB-2.0.lua
 lua tests/run.lua
-lua benchmarks/run.lua
-```
-
-The tests have no external Lua dependencies. GitHub or other CI automation
-should use a reviewed Lua 5.1 installation source rather than downloading an
-unreviewed runtime during the test job.
-
-Benchmarks default to three runs and report per-operation medians. Compare the
-working tree with the actual `1.0.0` tag through the same benchmark suite:
-
-```powershell
+lua tests/tagged-compat.lua
 lua benchmarks/run.lua
 lua benchmarks/compare.lua
-lua tests/tagged-compat.lua
 ```
+
+The tests have no external Lua dependencies. Hosted CI/CD is intentionally not
+configured; run this verification locally before pushing release changes or
+tags to GitHub.
+
+Benchmarks default to three runs and report per-operation medians.
+`benchmarks/compare.lua` loads the actual `1.0.0` source from Git and compares
+it with the working tree through the same suite.
 
 The optional positional arguments are primary iterations, run count, and GC
 mode, for example `lua benchmarks/compare.lua 500000 5 stopped`. See

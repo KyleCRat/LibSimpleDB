@@ -19,6 +19,7 @@ unreleased `LibSimpleDB-2.0`, minor `1` release candidate.
 | callback receives `path, newValue, oldValue` | callback receives `db, newValue, oldValue, ...path` |
 | `SetDefault(...)` | `ResetPath(...)` |
 | `RegisterEvent(event, callback)` | `RegisterLifecycleCallback(event, callback)` |
+| `UnregisterEvent(event, callback)` | `UnregisterLifecycleCallback(event, callback)` |
 | lifecycle callback receives `event, db, ...` | lifecycle callback receives `db, event, ...` |
 | mutate a table returned by `Get()` | modify `GetCopy()` and commit with `Set()` |
 
@@ -195,10 +196,11 @@ through `Set()` applies validation, ownership, normalization, and callbacks.
 db:Set("display", "scale", 1.2)
 ```
 
-Non-nil values must be SavedVariables-compatible primitives or plain, acyclic
-tables. Tables are recursively validated and copied before storage, and their
-keys must be strings or numbers. Functions, threads, userdata, cyclic tables,
-and unsupported table keys are rejected.
+Non-nil values must be SavedVariables-compatible primitives or acyclic tables.
+Tables are recursively validated and copied into plain storage, and their keys
+must be strings or numbers. Metatables and shared table identity are not
+preserved. Functions, threads, userdata, cyclic tables, and unsupported table
+keys are rejected.
 
 A nil final value resets the path:
 
@@ -455,7 +457,8 @@ local legacy = LibStub("LibSimpleDB-1.0")
 local current = LibStub("LibSimpleDB-2.0")
 ```
 
-They own independent library tables, prototypes, and instances.
+They have independent LibStub registrations and instances. Loading one family
+does not replace or update the other.
 
 Within the 2.0 family, later LibStub minors update a persistent prototype in
 place. Existing 2.0 instances receive newer method implementations when a
@@ -484,7 +487,8 @@ higher minor loads.
 - [ ] Every embed path references `LibSimpleDB-2.0`.
 - [ ] Every LibStub request uses `LibSimpleDB-2.0`.
 - [ ] No code calls `SetDefault()`.
-- [ ] No code uses nil as a Set value.
+- [ ] Every nil `Set()` value is an intentional reset, and no path contains a
+  nil key.
 - [ ] No code mutates tables returned by normal reads.
 - [ ] Exact callbacks use callback-first typed path arguments.
 - [ ] Wildcard callbacks use tree registrations.
@@ -503,14 +507,16 @@ higher minor loads.
 From the LibSimpleDB repository root with Lua 5.1:
 
 ```powershell
+luac -p LibSimpleDB-2.0.lua
 lua tests/run.lua
 lua tests/tagged-compat.lua
+lua benchmarks/run.lua
 lua benchmarks/compare.lua
 ```
 
-These validate the core library. Each migrated addon still requires focused
-in-game testing with its own SavedVariables, callback registrations, cached
-settings, and embedded dependency load order.
+These checks run locally; the project does not use hosted CI/CD. Each migrated
+addon still requires focused in-game testing with its own SavedVariables,
+callback registrations, cached settings, and embedded dependency load order.
 
 See [API.md](API.md) for the complete 2.0 contract and
 [Performance.md](Performance.md) for the reviewed performance behavior.

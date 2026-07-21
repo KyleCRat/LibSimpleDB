@@ -8,32 +8,11 @@
 - The Lua 5.1 tests, tagged-family compatibility tests, syntax checks, and
   repeatable 1.0-versus-2.0 benchmarks are available and passing.
 - Current read and write performance is accepted for the initial 2.0 release.
-- `LibSimpleDBProfiles-1.0` is planned in the sibling
-  `LibSimpleDBProfiles/PLAN.md` file but is not implemented.
+- Hosted CI/CD is intentionally not planned. Run the complete Lua 5.1
+  verification suite locally before pushing release changes or tags to GitHub.
+- `LibSimpleDBProfiles-1.0` is implemented and awaiting integration and release
+  verification with YvBags.
 - YvBags will be the release-candidate smoke test for both libraries.
-
-## Finalize LibSimpleDB
-
-- [ ] Commit the current `Set(..., nil)` reset behavior, tests, API contract,
-  changelog, and migration guide after final document review.
-- [ ] Update stale pre-verification status in `README.md` and `Performance.md` to
-  record the accepted benchmark conclusion and YvBags-only smoke-test scope.
-- [ ] Review `MIGRATION.md` end to end against the final 2.0 implementation.
-- [ ] Decide whether hosted Lua 5.1 CI is required for `2.0.0` or explicitly
-  defer it as post-release infrastructure.
-
-## Build LibSimpleDBProfiles
-
-- [ ] Implement `LibSimpleDBProfiles-1.0` from
-  `../LibSimpleDBProfiles/PLAN.md` against the reviewed core release candidate.
-- [ ] Add Lua 5.1 tests for storage initialization, scope selection, named
-  profiles, copy/rename/delete/reset operations, lifecycle callbacks, and
-  switching the active LibSimpleDB data root.
-- [ ] Verify that profile selection happens outside hot-path reads so consumers
-  continue calling core database methods without `global` or profile-name path
-  prefixes.
-- [ ] Prepare its API documentation, migration guidance, changelog, embedding
-  metadata, and reproducible consumer pin.
 
 ## Smoke-Test YvBags
 
