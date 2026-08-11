@@ -7,20 +7,20 @@ callbacks, and profile data switching without AceDB.
 The project intentionally has no standalone addon TOC. Consumer release
 packages embed the tagged library source and load it after LibStub.
 
-The current API family is `LibSimpleDB-2.0`. It targets WoW Interface `120007`
+The current API family is `LibSimpleDB-2.0`. It targets WoW Interface `120100`
 and Lua 5.1.
 
 ## Status
 
-The `2.0.0` release candidate is implemented. Syntax checks, the Lua 5.1 test
-suite, tagged-family compatibility tests, and repeatable 1.0-versus-2.0
-benchmarks have run successfully. The measured CPU-for-allocation tradeoff is
-accepted for the initial release.
+The `2.0.0` implementation is complete. Syntax checks, the Lua 5.1 test suite,
+tagged-family compatibility tests, and repeatable 1.0-versus-2.0 benchmarks
+have run successfully. The measured CPU-for-allocation tradeoff is accepted
+for the initial release.
 
-The release remains pending implementation of `LibSimpleDBProfiles-1.0`, the
-focused YvBags smoke test, and one final local verification run.
-PhasedCombatTimer, RPGBossBar, and LootLevel migrations are deferred and do not
-block `2.0.0`.
+`LibSimpleDBProfiles-1.0` is implemented, and the YvBags consumer integration
+and in-game smoke test are complete on WoW 12.1.0. The current candidate is
+ready for final review and tagging. PhasedCombatTimer, RPGBossBar, and LootLevel
+migrations are deferred and do not block `2.0.0`.
 
 ## Load and Create
 
@@ -63,7 +63,7 @@ Libs\LibSimpleDB-2.0\embed.xml
 ```
 
 The repository remains flat. Git tag `1.0.0` preserves the legacy family; tag
-`2.0.0` will identify the first reviewed rewrite release.
+`2.0.0` identifies the first reviewed rewrite release.
 
 ## Migrating from 1.0
 

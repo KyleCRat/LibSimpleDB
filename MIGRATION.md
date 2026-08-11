@@ -5,7 +5,7 @@ not an in-place minor upgrade of `LibSimpleDB-1.0`.
 
 This guide covers the source and behavioral changes required to migrate an
 addon from tagged release `1.0.0` (`LibSimpleDB-1.0`, minor `2`) to the
-unreleased `LibSimpleDB-2.0`, minor `1` release candidate.
+`LibSimpleDB-2.0`, minor `1`, `2.0.0` release.
 
 ## Migration Summary
 
@@ -50,7 +50,7 @@ local LibSimpleDB = LibStub("LibSimpleDB-1.0")
 local LibSimpleDB = LibStub("LibSimpleDB-2.0")
 ```
 
-When `2.0.0` is released, consumer packages should pin the reviewed tag:
+Consumer packages should pin the reviewed `2.0.0` tag:
 
 ```yaml
 externals:

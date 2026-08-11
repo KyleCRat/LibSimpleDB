@@ -4,34 +4,34 @@
 
 - API family: `LibSimpleDB-2.0`, LibStub minor `1`.
 - Latest released tag: `1.0.0` for the legacy `LibSimpleDB-1.0` family.
-- `2.0.0` is implemented but remains unreleased.
+- `2.0.0` is implemented, verified, and ready for final review and tagging.
 - The Lua 5.1 tests, tagged-family compatibility tests, syntax checks, and
   repeatable 1.0-versus-2.0 benchmarks are available and passing.
 - Current read and write performance is accepted for the initial 2.0 release.
 - Hosted CI/CD is intentionally not planned. Run the complete Lua 5.1
   verification suite locally before pushing release changes or tags to GitHub.
-- `LibSimpleDBProfiles-1.0` is implemented and awaiting integration and release
-  verification with YvBags.
-- YvBags will be the release-candidate smoke test for both libraries.
+- `LibSimpleDBProfiles-1.0` is implemented and verified through YvBags.
+- YvBags completed the release-candidate consumer smoke test for both libraries
+  on WoW 12.1.0.
 
 ## Smoke-Test YvBags
 
-- [ ] Update YvBags to use the reviewed `LibSimpleDB-2.0` and
+- [x] Update YvBags to use the reviewed `LibSimpleDB-2.0` and
   `LibSimpleDBProfiles-1.0` candidate commits.
-- [ ] Validate account-wide, per-character, profile-selection,
+- [x] Validate account-wide, per-character, profile-selection,
   profile-switching, path-callback, lifecycle-refresh, and reload-persistence
   behavior.
-- [ ] Load YvBags with real embedded LibStub copies while other installed addons
+- [x] Load YvBags with real embedded LibStub copies while other installed addons
   provide `LibSimpleDB-1.0`; confirm both API families coexist without
   replacement or mutation.
-- [ ] Confirm YvBags does not mutate tables returned by normal reads and does not
+- [x] Confirm YvBags does not mutate tables returned by normal reads and does not
   depend on LibSimpleDB instance internals.
 
 ## Final Verification And Release
 
-- [ ] Run `luac -p LibSimpleDB-2.0.lua` with stock Lua 5.1.
-- [ ] Run `lua tests/run.lua` and `lua tests/tagged-compat.lua`.
-- [ ] Run `lua benchmarks/run.lua` and `lua benchmarks/compare.lua`; confirm the
+- [x] Run `luac -p LibSimpleDB-2.0.lua` with stock Lua 5.1.
+- [x] Run `lua tests/run.lua` and `lua tests/tagged-compat.lua`.
+- [x] Run `lua benchmarks/run.lua` and `lua benchmarks/compare.lua`; confirm the
   results remain consistent with the accepted `Performance.md` conclusion.
 - [ ] Review the final diff and confirm only intended source, tests, benchmark,
   and documentation changes are included.

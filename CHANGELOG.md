@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 - Unreleased
+## 2.0.0 - 2026-08-10
 
 - Rewrote the library as the separate `LibSimpleDB-2.0` API family.
 - Added allocation-free effective, raw, default, and color read paths.
