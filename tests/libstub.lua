@@ -9,24 +9,27 @@ function LibStub:NewLibrary(major, minor)
     end
 
     local oldMinor = self.minors[major]
-    if oldMinor and oldMinor >= minor then
-        return nil, oldMinor
-    end
+
+    if oldMinor and oldMinor >= minor then return nil, oldMinor end
 
     local library = self.libs[major]
+
     if not library then
         library = {}
         self.libs[major] = library
     end
+
     self.minors[major] = minor
     return library, oldMinor
 end
 
 function LibStub:GetLibrary(major, silent)
     local library = self.libs[major]
+
     if not library and not silent then
         error(("Cannot find a library instance of %q"):format(major), 2)
     end
+
     return library, self.minors[major]
 end
 

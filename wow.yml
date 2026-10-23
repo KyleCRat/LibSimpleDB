@@ -1,0 +1,14 @@
+# Only globals used by this repository; review additions against the WoW API.
+# Names are checked here; API member signatures and secret-value contracts are not.
+base: lua51
+globals:
+    # Lua 5.1 permits assertions without a message; tests report source locations.
+    assert:
+        args:
+            - type: any
+            - type: string
+              required: false
+    geterrorhandler:
+        any: true
+    LibStub:
+        any: true

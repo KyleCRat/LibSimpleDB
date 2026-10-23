@@ -3,6 +3,7 @@ local TAGGED_SOURCE = "1.0.0:LibSimpleDB-1.0.lua"
 local function loadTaggedSource()
     local command = ('git show "%s" 2>&1'):format(TAGGED_SOURCE)
     local pipe, message = io.popen(command, "r")
+
     if not pipe then
         error(("unable to run git show: %s"):format(tostring(message)), 2)
     end
@@ -10,9 +11,14 @@ local function loadTaggedSource()
     local source = pipe:read("*a")
     pipe:close()
     local chunk, loadError = loadstring(source, "@1.0.0/LibSimpleDB-1.0.lua")
+
     if not chunk then
-        error(("unable to load %s: %s"):format(TAGGED_SOURCE, tostring(loadError)), 2)
+        error(
+            ("unable to load %s: %s"):format(TAGGED_SOURCE, tostring(loadError)),
+            2
+        )
     end
+
     chunk()
 end
 
@@ -65,7 +71,11 @@ local currentAdapter = {
     end,
 }
 
-io.write(("Comparing working tree against git tag source %s\n\n"):format(TAGGED_SOURCE))
+io.write(
+    ("Comparing working tree against git tag source %s\n\n"):format(
+        TAGGED_SOURCE
+    )
+)
 local legacySummary = suite.Run(legacyAdapter, options)
 io.write("\n")
 local currentSummary = suite.Run(currentAdapter, options)

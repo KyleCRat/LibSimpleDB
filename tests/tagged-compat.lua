@@ -2,9 +2,9 @@ local TAGGED_SOURCE = "1.0.0:LibSimpleDB-1.0.lua"
 
 local function readFile(path)
     local handle, message = io.open(path, "rb")
-    if not handle then
-        error(message, 2)
-    end
+
+    if not handle then error(message, 2) end
+
     local contents = handle:read("*a")
     handle:close()
     return contents
@@ -13,9 +13,11 @@ end
 local function readTaggedSource()
     local command = ('git show "%s" 2>&1'):format(TAGGED_SOURCE)
     local pipe, message = io.popen(command, "r")
+
     if not pipe then
         error(("unable to run git show: %s"):format(tostring(message)), 2)
     end
+
     local source = pipe:read("*a")
     pipe:close()
     return source
@@ -26,14 +28,15 @@ local currentSource = readFile("LibSimpleDB-2.0.lua")
 
 local function loadSource(source, name)
     local chunk, message = loadstring(source, "@" .. name)
-    if not chunk then
-        error(message, 2)
-    end
+
+    if not chunk then error(message, 2) end
+
     chunk()
 end
 
 local function verify(legacyFirst)
     dofile("tests/libstub.lua")
+
     if legacyFirst then
         loadSource(legacySource, "1.0.0/LibSimpleDB-1.0.lua")
         loadSource(currentSource, "LibSimpleDB-2.0.lua")
