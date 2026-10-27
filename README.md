@@ -12,15 +12,10 @@ and Lua 5.1.
 
 ## Status
 
-The `2.0.0` implementation is complete. Syntax checks, the Lua 5.1 test suite,
-tagged-family compatibility tests, and repeatable 1.0-versus-2.0 benchmarks
-have run successfully. The measured CPU-for-allocation tradeoff is accepted
-for the initial release.
-
-`LibSimpleDBProfiles-1.0` is implemented, and the YvBags consumer integration
-and in-game smoke test are complete on WoW 12.1.0. The current candidate is
-ready for final review and tagging. PhasedCombatTimer, RPGBossBar, and LootLevel
-migrations are deferred and do not block `2.0.0`.
+Release `2.0.1` uses LibStub implementation minor `2` in the existing
+`LibSimpleDB-2.0` family. It standardizes formatting and contributor tooling
+without changing public behavior or stored data. Existing `2.0` consumers
+require no migration.
 
 ## Load and Create
 
@@ -52,7 +47,7 @@ the consumer package:
 externals:
   Libs/LibSimpleDB-2.0:
     url: https://github.com/KyleCRat/LibSimpleDB.git
-    tag: 2.0.0
+    tag: 2.0.1
 ```
 
 Load the dependency in this order:

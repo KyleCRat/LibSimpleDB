@@ -1,4 +1,4 @@
-local MAJOR, MINOR = "LibSimpleDB-2.0", 1
+local MAJOR, MINOR = "LibSimpleDB-2.0", 2
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then return end

@@ -49,7 +49,7 @@ local function verify(legacyFirst)
     local current, currentMinor = LibStub("LibSimpleDB-2.0")
     assert(legacy ~= current, "API families share a library table")
     assert(legacyMinor == 2, "unexpected legacy minor")
-    assert(currentMinor == 1, "unexpected current minor")
+    assert(currentMinor == 2, "unexpected current minor")
 
     local legacyDB = legacy:New({}, { value = 10 })
     local currentDB = current:New({}, { value = 20 })

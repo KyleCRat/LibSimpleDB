@@ -97,7 +97,7 @@ local function loadLibrary(minor)
     if minor then
         local replacements
         source, replacements = source:gsub(
-            'local MAJOR, MINOR = "LibSimpleDB%-2%.0", 1',
+            'local MAJOR, MINOR = "LibSimpleDB%-2%.0", %d+',
             ('local MAJOR, MINOR = "LibSimpleDB-2.0", %d'):format(minor),
             1
         )
@@ -119,14 +119,14 @@ end
 local function freshLibrary(minor)
     dofile("tests/libstub.lua")
     callbackErrors = {}
-    return loadLibrary(minor or 1)
+    return loadLibrary(minor)
 end
 
 test("reports its API family and release minor", function()
     local library = freshLibrary()
     local major, minor = library:GetVersion()
     assertEqual(major, "LibSimpleDB-2.0")
-    assertEqual(minor, 1)
+    assertEqual(minor, 2)
     assertEqual(library.MAJOR, major)
     assertEqual(library.MINOR, minor)
 end)

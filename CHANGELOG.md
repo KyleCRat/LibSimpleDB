@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.0.1 - 2026-10-27
+
+- Standardize Lua formatting and add standalone StyLua/Selene checks for the
+  library, tests, and benchmarks. Public behavior and stored data are unchanged.
+- Publish LibStub implementation minor 2 within `LibSimpleDB-2.0`.
+- Add package metadata with a Markdown changelog and development-file exclusions.
+
 ## 2.0.0 - 2026-08-10
 
 - Rewrote the library as the separate `LibSimpleDB-2.0` API family.

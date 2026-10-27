@@ -1,0 +1,14 @@
+package-as: LibSimpleDB-2.0
+
+manual-changelog:
+    filename: CHANGELOG.md
+    markup-type: markdown
+
+ignore:
+    - selene.toml
+    - wow.yml
+    - AGENTS.md
+    - TODO.md
+    - tests
+    - benchmarks
+    - Performance.md

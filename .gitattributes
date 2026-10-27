@@ -1,4 +1,6 @@
 .gitattributes text eol=lf
+.editorconfig text eol=lf
+.pkgmeta text eol=lf
 *.lua text eol=lf
 *.toml text eol=lf
 .styluaignore text eol=lf
